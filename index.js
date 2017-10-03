@@ -51,11 +51,11 @@ module.exports = function koaZipkin(options) {
       const rootId = tracer.createRootId();
       if (lib.getHeaderValue(req, zipkin.HttpHeaders.Flags)) {
         const rootIdWithFlags = new zipkin.TraceId({
-          traceId: rootId.traceId,
-          parentId: rootId.parentId,
+          traceId: zipkin.option.fromNullable(rootId.traceId),
+          parentId: zipkin.option.fromNullable(rootId.parentId),
           spanId: rootId.spanId,
           sampled: rootId.sampled,
-          flags: readHeader(zipkin.HttpHeaders.Flags)
+          flags: readHeader(zipkin.HttpHeaders.Flags).flatMap(lib.stringToIntOption).getOrElse(0)
         });
         tracer.setId(rootIdWithFlags);
       } else {
